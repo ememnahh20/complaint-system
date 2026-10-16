@@ -3,25 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Student Complaint System{% endblock %}</title>
+<title>{% block title %}Student Complaint System | JRCC{% endblock %}</title>
+<link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="wrap {% block wrapclass %}{% endblock %}">
-  <header class="top">
-    <h1>Student Complaint System</h1>
+<header class="site">
+  <div class="site-inner {% block wrapclass %}{% endblock %}">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="JRCC logo">
+      <span class="brand-text">
+        <span class="school">Jesus Reigns Christian College</span>
+        <span class="sys">Student Complaint System</span>
+      </span>
+    </a>
     {% block nav %}
     <nav>
       <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Submit</a>
       <a href="{{ url_for('track_page') }}" class="{{ 'active' if request.endpoint == 'track_page' }}">Track</a>
     </nav>
     {% endblock %}
-  </header>
+  </div>
+</header>
+
+<main class="wrap {{ self.wrapclass() }}">
   {% with messages = get_flashed_messages() %}
     {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
   {% endwith %}
   {% block content %}{% endblock %}
-</div>
+</main>
+
+<footer class="site">
+  <b>JRCC</b> &middot; Jesus Reigns Christian College
+</footer>
 {% block scripts %}{% endblock %}
 </body>
 </html>

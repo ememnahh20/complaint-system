@@ -9,7 +9,8 @@
 </nav>
 {% endblock %}
 {% block content %}
-<div class="stats">
+<h2>Mga complaint</h2>
+<div class="stats" style="margin-top:12px">
   <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if not current }}"><span class="muted">All</span><b>{{ stats.total }}</b></a>
   {% for s in statuses %}
   <a href="{{ url_for('admin_dashboard', status=s) }}" class="{{ 'active' if current == s }}"><span class="muted">{{ s }}</span><b>{{ stats[s] }}</b></a>
