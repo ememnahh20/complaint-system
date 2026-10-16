@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <form id="complaintForm">
+    <label for="name">Full name</label>
+    <input id="name" name="name" required minlength="2" autocomplete="name">
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required autocomplete="email"
+           placeholder="Dito ipapadala ang Complaint ID">
+
+    <label for="category">Category</label>
+    <select id="category" name="category" required>
+      <option value="">Pumili...</option>
+      {% for c in categories %}<option>{{ c }}</option>{% endfor %}
+    </select>
+
+    <label for="message">Complaint</label>
+    <textarea id="message" name="message" required minlength="10"></textarea>
+
+    <button class="full" id="submitBtn" type="submit">Submit complaint</button>
+  </form>
+  <div class="result" id="result" role="status"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('complaintForm');
+const btn = document.getElementById('submitBtn');
+const out = document.getElementById('result');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const res = await fetch('/api/complaints', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'May error.');
+    const note = data.email_sent
+      ? 'May email na ipinadala sa iyo na may kopya ng ID na ito.'
+      : 'Hindi naipadala ang email, kaya <b>i-save ang ID na ito</b>.';
+    out.className = 'result show ok';
+    out.innerHTML = 'Natanggap na ang complaint mo. Complaint ID:<div class="cid">' + esc(data.complaint_id) +
+      '</div>' + note + '<br><a href="/track?id=' + encodeURIComponent(data.complaint_id) + '">I-track ang complaint</a>';
+    form.reset();
+  } catch (err) {
+    out.className = 'result show error';
+    out.textContent = 'Hindi na-submit: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit complaint';
+  }
+});
+</script>
+{% endblock %}

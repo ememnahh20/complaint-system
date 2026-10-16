@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <form id="trackForm">
+    <label for="cid">Complaint ID</label>
+    <input id="cid" required value="{{ prefill }}" placeholder="CMP-2026-0001-AB12">
+    <button class="full" id="btn" type="submit">Check status</button>
+  </form>
+  <div class="result" id="result" role="status"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('trackForm');
+const input = document.getElementById('cid');
+const btn = document.getElementById('btn');
+const out = document.getElementById('result');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function check() {
+  const id = input.value.trim().toUpperCase();
+  if (!id) return;
+  btn.disabled = true; btn.textContent = 'Checking...';
+  try {
+    const res = await fetch('/api/complaints/' + encodeURIComponent(id));
+    const d = await res.json();
+    if (!d.found) {
+      out.className = 'result show error';
+      out.textContent = 'Walang nahanap na complaint na may ID na ' + id + '. I-check ang ID sa email mo.';
+    } else {
+      out.className = 'result show ok';
+      out.innerHTML = '<div class="cid">' + esc(d.complaint_id) + '</div>' +
+        'Status: <span class="badge ' + esc(d.status.replace(' ', '-')) + '">' + esc(d.status) + '</span><br>' +
+        'Category: ' + esc(d.category) + '<br>Na-submit: ' + esc(d.date_submitted) +
+        (d.date_resolved ? '<br>Na-resolve: ' + esc(d.date_resolved) : '') +
+        (d.remarks ? '<br>Remarks ng admin: ' + esc(d.remarks) : '');
+    }
+  } catch (err) {
+    out.className = 'result show error';
+    out.textContent = 'Hindi ma-check ang status ngayon. Subukan ulit mamaya.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Check status';
+  }
+}
+form.addEventListener('submit', (e) => { e.preventDefault(); check(); });
+if (input.value) check();
+</script>
+{% endblock %}

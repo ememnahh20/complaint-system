@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Admin - Student Complaint System{% endblock %}
+{% block wrapclass %}wide{% endblock %}
+{% block nav %}
+<nav>
+  <form method="post" action="{{ url_for('admin_logout') }}" style="display:inline">
+    <button class="small" type="submit">Log out</button>
+  </form>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="stats">
+  <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if not current }}"><span class="muted">All</span><b>{{ stats.total }}</b></a>
+  {% for s in statuses %}
+  <a href="{{ url_for('admin_dashboard', status=s) }}" class="{{ 'active' if current == s }}"><span class="muted">{{ s }}</span><b>{{ stats[s] }}</b></a>
+  {% endfor %}
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Complaint</th><th>Status</th><th>Update</th></tr></thead>
+  <tbody>
+  {% for c in complaints %}
+  <tr>
+    <td><b>{{ c.id }}</b><br><span class="muted">{{ c.submitted_at.strftime('%b %d, %Y') }}</span></td>
+    <td>{{ c.student_name }}<br><span class="muted">{{ c.email }}</span></td>
+    <td>{{ c.category }}</td>
+    <td class="msg">{{ c.message }}</td>
+    <td><span class="badge {{ c.status.value.replace(' ', '-') }}">{{ c.status.value }}</span>
+      {% if c.remarks %}<br><span class="muted">{{ c.remarks }}</span>{% endif %}</td>
+    <td>
+      <form method="post" action="{{ url_for('admin_update_status', complaint_id=c.id, status=current) }}">
+        <select name="status" aria-label="Status">
+          {% for s in statuses %}<option {{ 'selected' if s == c.status.value }}>{{ s }}</option>{% endfor %}
+        </select>
+        <input name="remarks" placeholder="Remarks (optional)" value="">
+        <button class="small" type="submit">Save</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">Walang complaints dito.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

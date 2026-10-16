@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Student Complaint System{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="wrap {% block wrapclass %}{% endblock %}">
+  <header class="top">
+    <h1>Student Complaint System</h1>
+    {% block nav %}
+    <nav>
+      <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Submit</a>
+      <a href="{{ url_for('track_page') }}" class="{{ 'active' if request.endpoint == 'track_page' }}">Track</a>
+    </nav>
+    {% endblock %}
+  </header>
+  {% with messages = get_flashed_messages() %}
+    {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
